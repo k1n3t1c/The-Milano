@@ -4,19 +4,41 @@
   },
   "Settings": {
     "prefix": "!",
-    "debug": true
+    "debug": true,
+    "delete_interval": 5000,
+    "delete_invoke": true
   },
   "Permissions": {
-    "global": {
-      "eval": false,
-      "setUsername": false,
-	  "prune": false
-    },
+  "global": {
+        "eval": false,
+        "setUsername": false,
+        "alias": false,
+        "aliases": true,
+        "announce": false,
+        "idle": false,
+        "invokedel": false,
+        "invokeint": false,
+        "msg": true,
+        "online": false,
+        "prune": false,
+        "ping": true,
+        "say": false
+  },
     "users": {
       "189921902553202688": {
         "eval": true,
-        "prune": true,
-        "setUsername": true
+  		  "setUsername": true,
+  		  "alias": true,
+  		  "aliases": true,
+  		  "announce": true,
+  		  "idle": true,
+  		  "invokedel": true,
+  		  "invokeint": true,
+  		  "msg": true,
+  		  "online": true,
+  		  "prune": true,
+  		  "ping": true,
+  		  "say": true
       }
     }
   }
