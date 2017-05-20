@@ -14,7 +14,7 @@ console.log("Starting The Milano...\nNode version: " + process.version + "\nDisc
 // Load Config & Permissions
 try {
 	var Config = require("./config.json");
-	var rootCommands = ["eval", "pullanddeploy", "setUsername"];
+	var rootCommands = ["eval", "setUsername"];
 	for (var i = 0; i < rootCommands.length; i++) {
         	var command = rootCommands[i];
         	if (!Config.Permissions.global.hasOwnProperty(command)) {
@@ -81,27 +81,94 @@ Client.on("ready", function() {
 	Client.user.setGame(Config.Settings.prefix + "help | " + Client.guilds.array().length + " Servers");
 });
 
-function sendMessage(client, header, msg, desc) {
-	msg.channel.sendMessage({
-		"embed": {
-			author: {
-				name: client.user.username,
-				icon_url: client.user.avatarURL
-			},
-			title: header,
-			description: desc,
-			timestamp: new Date(),
-			footer: {
-				icon_url: client.user.avatarURL,
-				text: "© Milano"
-			}
+function sendMessage(client, header, msg, desc, field, col) {
+	if (col==null) { col = 3447003; }
+	if (Config.Settings.delete_invoke) {
+		if (field == null) {
+			msg.channel.sendMessage({
+				"embed": {
+					color: col,
+					author: {
+						name: client.user.username,
+						icon_url: client.user.avatarURL
+					},
+					title: header,
+					description: desc,
+					timestamp: new Date(),
+					footer: {
+						icon_url: client.user.avatarURL,
+						text: "© Milano"
+					}
+				}
+			}).then((msg => msg.delete(Config.Settings.delete_interval)));
+		} else {
+			msg.channel.sendMessage({
+				"embed": {
+					color: col,
+					author: {
+						name: client.user.username,
+						icon_url: client.user.avatarURL
+					},
+					fields: [{
+						name: field[0],
+						value: field[1]
+					}],
+					title: header,
+					description: desc,
+					timestamp: new Date(),
+					footer: {
+						icon_url: client.user.avatarURL,
+						text: "© Milano"
+					}
+				}
+			}).then((msg => msg.delete(Config.Settings.delete_interval)));
 		}
-	}).then((msg => msg.delete(5000)));
+	} else {
+		if (field == null) {
+			msg.channel.sendMessage({
+				"embed": {
+					color: col,
+					author: {
+						name: client.user.username,
+						icon_url: client.user.avatarURL
+					},
+					title: header,
+					description: desc,
+					timestamp: new Date(),
+					footer: {
+						icon_url: client.user.avatarURL,
+						text: "© Milano"
+					}
+				}
+			});
+		} else {
+			msg.channel.sendMessage({
+				"embed": {
+					color: col,
+					author: {
+						name: client.user.username,
+						icon_url: client.user.avatarURL
+					},
+					fields: [{
+						name: field[0],
+						value: field[1]
+					}],
+					title: header,
+					description: desc,
+					timestamp: new Date(),
+					footer: {
+						icon_url: client.user.avatarURL,
+						text: "© Milano"
+					}
+				}
+			});
+		}
+	}
 }
 
 function checkMessageForCommand(msg, isEdit) {
 	if(msg.author.id != Client.user.id && (msg.content.startsWith(Config.Settings.prefix))){
-		console.log("treating " + msg.content + " from " + msg.author + " as command");
+		console.log("Message Content as Command: " + msg.content + "\nFrom: " + msg.author + "\n");
 		var cmdTxt = msg.content.split(" ")[0].substring(Config.Settings.prefix.length);
 		var suffix = msg.content.substring(cmdTxt.length+Config.Settings.prefix.length+1);//add one for the ! and one for the space
 		if(msg.isMentioned(Client.user)){
@@ -109,7 +176,7 @@ function checkMessageForCommand(msg, isEdit) {
 				cmdTxt = msg.content.split(" ")[1];
 				suffix = msg.content.substring(Client.user.mention().length+cmdTxt.length+Config.Settings.prefix.length+1);
 			} catch(e){ //no command
-				msg.channel.sendMessage("Yes?");
+				msg.channel.sendMessage("Hi, you called?");
 				return;
 			}
 		}
@@ -120,58 +187,55 @@ function checkMessageForCommand(msg, isEdit) {
 			suffix = alias[1] + " " + suffix;
 		}
 		var cmd = commands[cmdTxt];
-		if(cmdTxt === "help"){
-			//help is special since it iterates over the other commands
-						if(suffix){
-							var cmds = suffix.split(" ").filter(function(cmd){return commands[cmd]});
-							var info = "";
-							for(var i=0;i<cmds.length;i++) {
-								var cmd = cmds[i];
-								info += "**"+Config.Settings.prefix + cmd+"**";
+		if(cmdTxt === "help") {
+					if(suffix) {
+						var cmds = suffix.split(" ").filter(function(cmd){return commands[cmd]});
+						var info = "";
+						for(var i=0;i<cmds.length;i++) {
+							var cmd = cmds[i];
+							info += "**"+Config.Settings.prefix + cmd+"**";
+							var usage = commands[cmd].usage;
+							if(usage){
+								info += " " + usage;
+							}
+							var description = commands[cmd].description;
+							if(description instanceof Function){
+								description = description();
+							}
+							if(description){
+								info += "\n\t" + description;
+							}
+							info += "\n"
+						}
+						sendMessage(Client, "Info", msg, info, null, null);
+					} else {
+							var batch = "";
+							var sortedCommands = Object.keys(commands).sort();
+							for(var i in sortedCommands) {
+								var cmd = sortedCommands[i];
+								var info = "**"+Config.Settings.prefix + cmd+"**";
 								var usage = commands[cmd].usage;
 								if(usage){
 									info += " " + usage;
 								}
 								var description = commands[cmd].description;
-								if(description instanceof Function){
+								if(description instanceof Function) {
 									description = description();
 								}
 								if(description){
 									info += "\n\t" + description;
 								}
-								info += "\n"
-							}
-							msg.channel.sendMessage(info);
-						} else {
-							msg.author.sendMessage("**Available Commands:**").then(function() {
-								var batch = "";
-								var sortedCommands = Object.keys(commands).sort();
-								for(var i in sortedCommands) {
-									var cmd = sortedCommands[i];
-									var info = "**"+Config.Settings.prefix + cmd+"**";
-									var usage = commands[cmd].usage;
-									if(usage){
-										info += " " + usage;
-									}
-									var description = commands[cmd].description;
-									if(description instanceof Function){
-										description = description();
-									}
-									if(description){
-										info += "\n\t" + description;
-									}
-									var newBatch = batch + "\n" + info;
-									if(newBatch.length > (1024 - 8)){ //limit message length
-										msg.author.sendMessage(batch);
-										batch = info;
-									} else {
-										batch = newBatch
-									}
-								}
-								if(batch.length > 0){
+								var newBatch = batch + "\n" + info;
+								if(newBatch.length > (1024 - 8)) {
 									msg.author.sendMessage(batch);
+									batch = info;
+								} else {
+									batch = newBatch
 								}
-						});
+							}
+							if(batch.length > 0) {
+								sendMessage(Client, "**Available Commands**", msg, batch, null, null)
+							}
 					}
 		}
 		else if(cmd) {
@@ -189,7 +253,7 @@ function checkMessageForCommand(msg, isEdit) {
 				msg.channel.sendMessage("You are not allowed to run " + cmdTxt + "!");
 			}
 		} else {
-			msg.channel.sendMessage(cmdTxt + " not recognized as a command!").then((message => message.delete(5000)))
+			msg.channel.sendMessage(cmdTxt + " not recognized as a command!").then((message => message.delete(Config.Settings.delete_interval)))
 		}
 	} else {
 		if(msg.author == Client.user){
@@ -249,7 +313,7 @@ Client.on("disconnected", function () {
 });
 
 // Add Command(s)
-var commands = {	
+var commands = {
 	"alias": {
 		usage: "<name> <actual command>",
 		description: "Creates command aliases. Useful for making simple commands on the fly",
@@ -272,41 +336,78 @@ var commands = {
 	"aliases": {
 		description: "lists all recorded aliases",
 		process: function(Client, msg, suffix) {
-			var text = "current aliases:\n";
+			var text = "";
 			for(var a in aliases){
 				if(typeof a === 'string')
-					text += a + " ";
+					text += a + "\n";
 			}
-			msg.channel.sendMessage(text);
+			sendMessage(Client, "Current Aliases", msg, text, null, null);
 		}
 	},
 	"ping": {
 		description: "responds pong, useful for checking if bot is alive",
 		process: function(Client, msg, suffix) {
-			msg.channel.sendMessage( msg.author+" pong!");
-			if(suffix){
-				msg.channel.sendMessage( "note that !ping takes no arguments!");
+			var message = msg.author + " pong!";
+			sendMessage(Client, "Ping-Pong!", msg, message, null, null);
+		}
+	},
+	"invokeint": {
+		description: "sets the interval for deletion of invoked messages",
+		process: function(Client, msg, suffix) {
+			var value;
+			value = parseInt(suffix);
+			if (isNaN(value)) {
+				sendMessage(Client, "Please use numbers!", msg, "Only accepts integer values!", null, 0xFF0000);
+				return;
 			}
+			Config.Settings.delete_interval = value;
+			var message = "This command sets the interval in ms how long it takes to delete it's own invoked messages.";
+			var fields = [];
+			fields.push("Interval Rate (ms)");
+			fields.push("**"+value+"**");
+			sendMessage(Client, "Set Invoke Interval", msg, message, fields, null);
+			fs.writeFile("./config.json",JSON.stringify(Config,null,2));
+		}
+	},
+	"invokedel": {
+		description: "deletes invoked messages.",
+		process: function(Client, msg, suffix) {
+			var message = "This command enables/disables deletion of messages on command invocation.\n"
+			if (Config.Settings.delete_invoke) {
+				Config.Settings.delete_invoke = false;
+				var fields = [];
+				fields.push("Status");
+				fields.push("**DISABLED**")
+				sendMessage(Client, "Delete Invoked Commands", msg, message, fields, 0xFF0000)
+			} else {
+				Config.Settings.delete_invoke = true;
+				var fields = [];
+				fields.push("Status");
+				fields.push("**ENABLED**")
+				sendMessage(Client, "Delete Invoked Commands", msg, message, fields, null)
+			}
+			fs.writeFile("./config.json",JSON.stringify(Config,null,2));
 		}
 	},
 	"prune": {
 		description: "prunes messages.",
 		process: function(Client, msg, suffix) {
-				if (!isNaN(suffix)) {
+				var value;
+				value = 50;
+				value = parseInt(suffix);
+				if (isNaN(value)) {
 					console.log("Please note that prune without a number will delete up to 50 messages.\nYou can run prune 10 to delete 10 messages.");
 				}
+				var message = "You or the Bot don't have the permission to execute this command! Check your console! \"" + msg.content+"\"";
 				if(!Config.Permissions.checkPermission(msg.author, "prune")) {
-						msg.channel.sendMessage("You don't have the permission to execute this command! \"" + msg.content+"\"");
-						console.log("You don't have the permission to execute a prune!");
+						sendMessage(Client, "Permissions", msg, message, null, 0xFF0000);
+						console.log("You(user) don't have the permission to execute a prune!");
 						return;
 				} else if (!Config.Permissions.checkPermission(Client.user, "prune")) {
-						msg.channel.sendMessage("Bot does not have the permission to execute this command! \"" + msg.content+"\"");
+						sendMessage(Client, "Permissions", msg, message, null, null);
 						console.log("Bot does not have the permission to execute a prune!");
 						return;
 				}
-
-				var intSuffix = 50;
-				intSuffix = parseInt(suffix);
 
 				if (msg.channel.type == 'text') {
 						msg.channel.fetchMessages({limit: intSuffix}).then(messages => {
@@ -325,7 +426,7 @@ var commands = {
 	"idle": {
 		usage: "[status]",
 		description: "sets bot status to idle",
-		process: function(Client,msg,suffix) { 
+		process: function(Client,msg,suffix) {
 			Client.user.setStatus("idle");
 			Client.user.setGame(suffix);
 		}
@@ -333,7 +434,7 @@ var commands = {
 	"online": {
 		usage: "[status]",
 		description: "sets bot status to online",
-		process: function(Client,msg,suffix) { 
+		process: function(Client,msg,suffix) {
 			Client.user.setStatus("online");
 			Client.user.setGame(suffix);
 		}
@@ -393,4 +494,3 @@ exports.addCommand = function(commandName, commandObject){
 exports.commandCount = function() {
 	return Object.keys(commands).length;
 }
-
