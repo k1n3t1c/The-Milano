@@ -207,7 +207,7 @@ function checkMessageForCommand(msg, isEdit) {
 							}
 							info += "\n"
 						}
-						sendMessage(Client, "Info", msg, info, null, null);
+						sendMessage(Client, "Command Help", msg, info, null, null);
 					} else {
 							var batch = "";
 							var sortedCommands = Object.keys(commands).sort();
@@ -403,14 +403,14 @@ var commands = {
 						sendMessage(Client, "Permissions", msg, message, null, 0xFF0000);
 						console.log("You(user) don't have the permission to execute a prune!");
 						return;
-				} else if (!Config.Permissions.checkPermission(Client.user, "prune")) {
+				} else if (!Config.Permissions.checkPermission(Client.user, "MANAGE_MESSAGES")) {
 						sendMessage(Client, "Permissions", msg, message, null, null);
 						console.log("Bot does not have the permission to execute a prune!");
 						return;
 				}
 
 				if (msg.channel.type == 'text') {
-						msg.channel.fetchMessages({limit: intSuffix}).then(messages => {
+						msg.channel.fetchMessages({limit: value}).then(messages => {
 									msg.channel.bulkDelete(messages);
 									messagesDeleted = messages.array().length;
 									var desc = "Successfully deleted " + messagesDeleted + " messages.";
