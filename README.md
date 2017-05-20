@@ -1,4 +1,5 @@
 # The Milano
+![Build Status](https://travis-ci.org/StarlordVA/The-Milano.svg?branch=master "Build Status")
 A Discord chat bot based off of <a href="https://github.com/hydrabolt/discord.js/">discord.js</a>
 
 More information later...
