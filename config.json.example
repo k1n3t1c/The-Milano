@@ -1,0 +1,23 @@
+{
+  "Authentication": {
+    "bot_token": ""
+  },
+  "Settings": {
+    "prefix": "!",
+    "debug": true
+  },
+  "Permissions": {
+    "global": {
+      "eval": false,
+      "setUsername": false,
+	  "prune": false
+    },
+    "users": {
+      "189921902553202688": {
+        "eval": true,
+        "prune": true,
+        "setUsername": true
+      }
+    }
+  }
+}
