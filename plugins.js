@@ -73,7 +73,7 @@ function preload_plugins(){
 }
 
 function load_plugins(){
-    var bot = require("./milano.js");
+    var bot = require("./plugins/modules.js");
     var commandCount = 0;
     for (var i = 0; i < plugin_folders.length; i++) {
         var plugin;
