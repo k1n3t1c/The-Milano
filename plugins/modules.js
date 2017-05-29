@@ -18,7 +18,8 @@ try {
 
 exports.sendMessage = function (client, header, msg, desc, field, col) {
     if (col == null) { col = 3447003; }
-    if (Config.Settings.delete_invoke) {
+    if (Config.Settings.delete_invoke && msg.channel.type == "text") {
+        console.log(msg.channel.type);
         if (field == null) {
             msg.channel.sendMessage({
                 "embed": {
@@ -125,7 +126,7 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
         var cmd = exports.commands[cmdTxt];
         if (cmdTxt === "help") {
             if (suffix) {
-                var cmds = suffix.split(" ").filter(function (cmd) { return commands[cmd] });
+                var cmds = suffix.split(" ").filter(function (cmd) { return exports.commands[cmd] });
                 var info = "";
                 for (var i = 0; i < cmds.length; i++) {
                     var cmd = cmds[i];
@@ -134,7 +135,7 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
                     if (usage) {
                         info += " " + usage;
                     }
-                    var description = commands[cmd].description;
+                    var description = exports.commands[cmd].description;
                     if (description instanceof Function) {
                         description = description();
                     }
@@ -163,7 +164,7 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
                     }
                     var newBatch = batch + "\n" + info;
                     if (newBatch.length > (1024 - 8)) {
-                        msg.author.sendMessage(batch);
+                        exports.sendMessage(Client, "", msg, batch, null, null);
                         batch = info;
                     } else {
                         batch = newBatch

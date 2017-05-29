@@ -13,16 +13,19 @@
 	"scripts": {
 		"start": "node milano.js"
 	},
-	"dependencies": {
-		"discord.js": "11.0.x",
-		"feedparser": "1.1.x",
-		"html-to-text": "1.5.x",
-		"nock": "1.7.x",
-		"npm": "",
-		"querystring": "0.2.x",
-		"sinon": "1.14.x",
-		"tumblr.js": "0.0.x",
-		"underscore": "1.8.x"
-	},
+  "dependencies": {
+    "discord.js": "11.0.x",
+    "feedparser": "1.1.x",
+    "html-to-text": "1.5.x",
+    "nock": "1.7.x",
+    "npm": "",
+    "querystring": "0.2.x",
+    "sinon": "1.14.x",
+    "tumblr.js": "0.0.x",
+    "underscore": "1.8.x",
+    "ytdl-core": "0.14.1",
+    "node-opus": "0.2.6",
+    "ffmpeg-binaries": "3.2.2-3"
+  },
 	"main": "milano.js"
 }
