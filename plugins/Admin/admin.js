@@ -5,6 +5,15 @@ try {
     var fs = require('fs');
 } catch (err) { }
 
+// Aliases
+var aliases;
+try {
+    aliases = require("../../alias.json");
+} catch (err) {
+    // No aliases defined
+    aliases = {};
+}
+
 exports.commands = [
     "setUsername",
     "alias",
@@ -31,19 +40,19 @@ exports.setUsername = {
 }
 exports.alias = {
     usage: "<name> <actual command>",
-        description: "Creates command aliases. Useful for making simple commands on the fly",
+    description: "Creates command aliases. Useful for making simple commands on the fly",
         process: function (bot, msg, suffix) {
                 var args = suffix.split(" ");
                 var name = args.shift();
                 if (!name) {
-                    msg.channel.sendMessage(Config.commandPrefix + "alias " + this.usage + "\n" + this.description);
-                } else if (commands[name] || name === "help") {
+                    msg.channel.sendMessage(Config.Settings.prefix + "alias " + this.usage + "\n" + this.description);
+                } else if (exports.commands[name] || name === "help") {
                     msg.channel.sendMessage("overwriting commands with aliases is not allowed!");
                 } else {
                     var command = args.shift();
                     aliases[name] = [command, args.join(" ")];
                     //now save the new alias
-                    require("fs").writeFile("./alias.json", JSON.stringify(aliases, null, 2), null);
+                    require("fs").writeFile("../../alias.json", JSON.stringify(aliases, null, 2), null);
                     msg.channel.sendMessage("created alias " + name);
                 }
             }
@@ -142,16 +151,16 @@ exports.idle = {
     usage: "[status]",
         description: "sets bot status to idle",
             process: function(bot, msg, suffix) {
-                Client.user.setStatus("idle");
-                Client.user.setGame(suffix);
+                bot.user.setStatus("idle");
+                bot.user.setGame(suffix);
             }
 }
 exports.online = {
     usage: "[status]",
         description: "sets bot status to online",
             process: function(bot, msg, suffix) {
-                Client.user.setStatus("online");
-                Client.user.setGame(suffix);
+                bot.user.setStatus("online");
+                bot.user.setGame(suffix);
             }
 }
 exports.say = {

@@ -26,8 +26,8 @@ try {
 		Config.Settings.prefix = "!";
 	}
 } catch (err) {
-	try {
-		if (fs.lstatSync("./config.json").isFile()) {
+    try {
+        if (fs.lstatSync("./config.json").isFile()) {
 			console.log("WARNING: config.json found, but the bot couldn't read it!\n" + err.stack);
 		}
 	} catch (e2) {

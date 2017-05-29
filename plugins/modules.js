@@ -4,10 +4,13 @@ try {
     var Milano = require("../milano.js");
 } catch (err) { }
 
+// Add Command(s)
+exports.commands = {};
+
 // Aliases
 var aliases;
 try {
-    aliases = require("./alias.json");
+    aliases = require("../alias.json");
 } catch (err) {
     // No aliases defined
     aliases = {};
@@ -103,12 +106,12 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
     if (msg.author.id != Client.user.id && (msg.content.startsWith(Config.Settings.prefix))) {
         console.log("Message Content as Command: " + msg.content + "\nFrom: " + msg.author + "\n");
         var cmdTxt = msg.content.split(" ")[0].substring(Config.Settings.prefix.length);
-        var suffix = msg.content.substring(cmdTxt.length + Config.Settings.prefix.length + 1);//add one for the ! and one for the space
+        var suffix = msg.content.substring(cmdTxt.length + Config.Settings.prefix.length + 1);
         if (msg.isMentioned(Client.user)) {
             try {
                 cmdTxt = msg.content.split(" ")[1];
                 suffix = msg.content.substring(Client.user.mention().length + cmdTxt.length + Config.Settings.prefix.length + 1);
-            } catch (e) { //no command
+            } catch (e) { // no command
                 msg.channel.sendMessage("Hi, you called?");
                 return;
             }
@@ -119,7 +122,7 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
             cmdTxt = alias[0];
             suffix = alias[1] + " " + suffix;
         }
-        var cmd = commands[cmdTxt];
+        var cmd = exports.commands[cmdTxt];
         if (cmdTxt === "help") {
             if (suffix) {
                 var cmds = suffix.split(" ").filter(function (cmd) { return commands[cmd] });
@@ -127,7 +130,7 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
                 for (var i = 0; i < cmds.length; i++) {
                     var cmd = cmds[i];
                     info += "**" + Config.Settings.prefix + cmd + "**";
-                    var usage = commands[cmd].usage;
+                    var usage = exports.commands[cmd].usage;
                     if (usage) {
                         info += " " + usage;
                     }
@@ -140,18 +143,18 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
                     }
                     info += "\n"
                 }
-                sendMessage(Client, "Command Help", msg, info, null, null);
+                exports.sendMessage(Client, "Command Help", msg, info, null, null);
             } else {
                 var batch = "";
-                var sortedCommands = Object.keys(commands).sort();
+                var sortedCommands = Object.keys(exports.commands).sort();
                 for (var i in sortedCommands) {
                     var cmd = sortedCommands[i];
                     var info = "**" + Config.Settings.prefix + cmd + "**";
-                    var usage = commands[cmd].usage;
+                    var usage = exports.commands[cmd].usage;
                     if (usage) {
                         info += " " + usage;
                     }
-                    var description = commands[cmd].description;
+                    var description = exports.commands[cmd].description;
                     if (description instanceof Function) {
                         description = description();
                     }
@@ -167,7 +170,7 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
                     }
                 }
                 if (batch.length > 0) {
-                    sendMessage(Client, "**Available Commands**", msg, batch, null, null)
+                    exports.sendMessage(Client, "**Available Commands**", msg, batch, null, null)
                 }
             }
         }
@@ -198,16 +201,13 @@ exports.checkMessageForCommand = function(Client, msg, isEdit) {
     }
 }
 
-
-// Add Command(s)
-var commands = {};
 exports.addCommand = function (commandName, commandObject) {
     try {
-        commands[commandName] = commandObject;
+        exports.commands[commandName] = commandObject;
     } catch (err) {
         console.log(err);
     }
 }
 exports.commandCount = function () {
-    return Object.keys(commands).length;
+    return Object.keys(exports.commands).length;
 }
