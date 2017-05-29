@@ -1,7 +1,6 @@
 ﻿const YoutubeDL = require('youtube-dl');
 const ytdl = require('ytdl-core');
 var client;
-
 // Load
 try {
     var Config = require("../../config.json");
@@ -17,7 +16,7 @@ exports.init = function (user) {
 let PREFIX = (Config.Settings.prefix) || '!';
 let GLOBAL = (Config.Settings.global) || false;
 let MAX_QUEUE_SIZE = (Config.Settings.max_queue_size) || 20;
-let DEFAULT_VOLUME = (Config.Settings.default_volume) || 50;
+let DEFAULT_VOLUME = (Config.Settings.default_volume) || 10;
 let ALLOW_ALL_SKIP = (Config.Settings.allow_all_skip) || false;
 let CLEAR_INVOKER = (Config.Settings.clear_invoker) || false;
 
@@ -364,7 +363,9 @@ exports.clearqueue = {
         });
 
         msg.channel.sendMessage(wrap("Volume set to " + suffix));
+        Config.Settings.default_volume = suffix;
         dispatcher.setVolume((suffix / 100));
+        fs.writeFile("../../config.json", JSON.stringify(Config, null, 2));
     }
 
 	/**
