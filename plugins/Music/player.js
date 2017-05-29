@@ -1,5 +1,6 @@
 ﻿const YoutubeDL = require('youtube-dl');
 const ytdl = require('ytdl-core');
+var client;
 
 // Load
 try {
@@ -7,6 +8,10 @@ try {
     var Module = require("../modules.js");
     var fs = require('fs');
 } catch (err) { }
+
+exports.init = function (user) {
+    client = user;
+}
 
 // SET
 let PREFIX = (Config.Settings.prefix) || '!';

@@ -3,6 +3,7 @@ var fs = require('fs');
 try {
     var Discord = require("discord.js");
     var Module = require("./plugins/modules.js");
+    var Music = require("./plugins/Music/player.js");
     var Client = new Discord.Client();
 } catch (err) {
 	console.log(err.stack);
@@ -11,7 +12,7 @@ try {
 	process.exit();
 }
 console.log("Starting The Milano...\nNode version: " + process.version + "\nDiscord.js version: " + Discord.version);
-
+Music.init(Client);
 // Load Config & Permissions
 try {
     var Config = require("./config.json");
